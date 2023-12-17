@@ -26,6 +26,7 @@ import {
 import { IDictionary } from "@bettercorp/tools/lib/Interfaces";
 import { readFileSync } from "fs";
 import { hostname } from "os";
+import { Tools } from "@bettercorp/tools";
 
 export interface ServiceTypes extends BSBServiceTypes {
   onEvents: ServiceEventsBase;
@@ -164,7 +165,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       handler: FastifyNoBodyRequestHandler<Path>
     ): Promise<void> => {
       let server = await this.getServerToListenTo();
-      this.log.debug(`[{type}] initForPlugins [HEAD]{path}`, {
+      this.log.debug(`[{type}] initForPlugins [HEAD] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
       });
@@ -183,7 +184,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       handler: FastifyNoBodyRequestHandler<Path>
     ): Promise<void> => {
       let server = await this.getServerToListenTo();
-      this.log.debug(`[{type}] initForPlugins [GET]{path}`, {
+      this.log.debug(`[{type}] initForPlugins [GET] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
       });
@@ -208,7 +209,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       handler: Handler
     ): Promise<void> => {
       let server = await this.getServerToListenTo();
-      this.log.debug(`[{type}] initForPlugins [GET CUSTOM]{path}`, {
+      this.log.debug(`[{type}] initForPlugins [GET CUSTOM] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
       });
@@ -226,7 +227,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       handler: FastifyRequestHandler<Path>
     ): Promise<void> => {
       let server = await this.getServerToListenTo();
-      this.log.debug(`[{type}] initForPlugins [POST]{path}`, {
+      this.log.debug(`[{type}] initForPlugins [POST] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
       });
@@ -244,7 +245,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       handler: FastifyRequestHandler<Path>
     ): Promise<void> => {
       let server = await this.getServerToListenTo();
-      this.log.debug(`[{type}] initForPlugins [PUT]{path}`, {
+      this.log.debug(`[{type}] initForPlugins [PUT] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
       });
@@ -262,7 +263,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       handler: FastifyRequestHandler<Path>
     ): Promise<void> => {
       let server = await this.getServerToListenTo();
-      this.log.debug(`[{type}] initForPlugins [DELETE]{path}`, {
+      this.log.debug(`[{type}] initForPlugins [DELETE] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
       });
@@ -280,7 +281,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       handler: FastifyRequestHandler<Path>
     ): Promise<void> => {
       let server = await this.getServerToListenTo();
-      this.log.debug(`[{type}] initForPlugins [PATCH]{path}`, {
+      this.log.debug(`[{type}] initForPlugins [PATCH] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
       });
@@ -298,7 +299,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       handler: FastifyNoBodyRequestHandler<Path>
     ): Promise<void> => {
       let server = await this.getServerToListenTo();
-      this.log.debug(`[{type}] initForPlugins [OPTIONS]{path}`, {
+      this.log.debug(`[{type}] initForPlugins [OPTIONS] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
       });
@@ -316,7 +317,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       handler: FastifyRequestHandler<Path>
     ): Promise<void> => {
       let server = await this.getServerToListenTo();
-      this.log.debug(`[{type}] initForPlugins [ALL]{path}`, {
+      this.log.debug(`[{type}] initForPlugins [ALL] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
       });
@@ -330,7 +331,10 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       });
     },
   };
-  dispose?(): void;
+  dispose(): void {
+    if (!Tools.isNullOrUndefined(this.HTTPFastify)) this.HTTPFastify.close();
+    if (!Tools.isNullOrUndefined(this.HTTPSFastify)) this.HTTPSFastify.close();
+  }
   public async run(): Promise<void> {
     this.log.debug(`loaded`);
     if (
