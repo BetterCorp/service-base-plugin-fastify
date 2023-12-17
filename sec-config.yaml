@@ -1,0 +1,5 @@
+default:
+  services:
+    service-fastify:
+      plugin: service-fastify
+      enabled: true

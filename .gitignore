@@ -1,0 +1,9 @@
+/lib
+node_modules
+/_exports
+/docker
+/sec.config.json
+/node_modules
+/junit.xml
+/test-file-*
+/dist-clients
