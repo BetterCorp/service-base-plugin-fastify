@@ -153,7 +153,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
         | Promise<{ default: FastifyPluginAsync<FastifyPluginOptions> }>,
       opts?: FastifyRegisterOptions<FastifyPluginOptions>
     ): Promise<void> => {
-      let server = await this.getServerToListenTo();
+      const server = await this.getServerToListenTo();
       this.log.debug(`[{type}] initForPlugins [USE]`, { type: server.type });
       server.server.register(plugin, opts);
       this.log.debug(`[{type}] initForPlugins [USE] OKAY`, {
@@ -164,7 +164,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       path: Path,
       handler: FastifyNoBodyRequestHandler<Path>
     ): Promise<void> => {
-      let server = await this.getServerToListenTo();
+      const server = await this.getServerToListenTo();
       this.log.debug(`[{type}] initForPlugins [HEAD] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
@@ -183,7 +183,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       path: Path,
       handler: FastifyNoBodyRequestHandler<Path>
     ): Promise<void> => {
-      let server = await this.getServerToListenTo();
+      const server = await this.getServerToListenTo();
       this.log.debug(`[{type}] initForPlugins [GET] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
@@ -208,7 +208,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       opts: Opts,
       handler: Handler
     ): Promise<void> => {
-      let server = await this.getServerToListenTo();
+      const server = await this.getServerToListenTo();
       this.log.debug(`[{type}] initForPlugins [GET CUSTOM] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
@@ -226,7 +226,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       path: Path,
       handler: FastifyRequestHandler<Path>
     ): Promise<void> => {
-      let server = await this.getServerToListenTo();
+      const server = await this.getServerToListenTo();
       this.log.debug(`[{type}] initForPlugins [POST] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
@@ -244,7 +244,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       path: Path,
       handler: FastifyRequestHandler<Path>
     ): Promise<void> => {
-      let server = await this.getServerToListenTo();
+      const server = await this.getServerToListenTo();
       this.log.debug(`[{type}] initForPlugins [PUT] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
@@ -262,7 +262,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       path: Path,
       handler: FastifyRequestHandler<Path>
     ): Promise<void> => {
-      let server = await this.getServerToListenTo();
+      const server = await this.getServerToListenTo();
       this.log.debug(`[{type}] initForPlugins [DELETE] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
@@ -280,7 +280,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       path: Path,
       handler: FastifyRequestHandler<Path>
     ): Promise<void> => {
-      let server = await this.getServerToListenTo();
+      const server = await this.getServerToListenTo();
       this.log.debug(`[{type}] initForPlugins [PATCH] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
@@ -298,7 +298,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       path: Path,
       handler: FastifyNoBodyRequestHandler<Path>
     ): Promise<void> => {
-      let server = await this.getServerToListenTo();
+      const server = await this.getServerToListenTo();
       this.log.debug(`[{type}] initForPlugins [OPTIONS] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
@@ -316,7 +316,7 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
       path: Path,
       handler: FastifyRequestHandler<Path>
     ): Promise<void> => {
-      let server = await this.getServerToListenTo();
+      const server = await this.getServerToListenTo();
       this.log.debug(`[{type}] initForPlugins [ALL] {path}`, {
         type: server.type,
         path: this.getFinalPath(path),
@@ -437,8 +437,8 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
   public async init(): Promise<void> {
     if (this.config.health) {
       this.methods.get("/health", async (reply, params, query, req) => {
-        let checkResults: IDictionary<boolean> = {};
-        for (let key of Object.keys(this.HealthChecks)) {
+        const checkResults: IDictionary<boolean> = {};
+        for (const key of Object.keys(this.HealthChecks)) {
           checkResults[key] = await Promise.race<boolean>([
             new Promise((resolve) =>
               this.HealthChecks[key]()

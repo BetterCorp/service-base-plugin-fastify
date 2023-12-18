@@ -46,6 +46,7 @@ export type ParamsFromPathUntouched<T extends string> = T extends
   : never;
 
 export type ParamsFromPath<T extends string> = {
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   [Key in ParamsFromPathUntouched<T> as ParamsFromPathItemStringUndefined<Key>]: Key extends `${infer Name}?`
     ? string | undefined
     : string;
