@@ -107,7 +107,7 @@ export const secSchema = z
         "IPv6 Only: If true, the server will only listen on IPv6 addresses"
       ),
   })
-  .refine(
+  /*.refine(
     (value) => {
       if (
         (value && validHostsV6.includes(value.host)) ||
@@ -130,7 +130,7 @@ export const secSchema = z
     {
       message: "httpPort and httpsPort must be different",
     }
-  )
+  )*/
   .default({});
 
 export class Config extends BSBServiceConfig<typeof secSchema> {
