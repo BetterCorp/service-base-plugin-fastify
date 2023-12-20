@@ -7,3 +7,4 @@ node_modules
 /junit.xml
 /test-file-*
 /dist-clients
+.nyc_output
