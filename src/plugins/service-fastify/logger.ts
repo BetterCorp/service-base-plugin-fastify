@@ -1,9 +1,6 @@
 import { IPluginLogger } from "@bettercorp/service-base";
-import { CleanStringStrength, Tools } from "@bettercorp/tools";
-import {
-  FastifyInstance,
-  FastifyRequestContext,
-} from "fastify";
+import { CleanStringStrength, Tools } from "@bettercorp/tools/lib/Tools";
+import { FastifyInstance, FastifyRequestContext } from "fastify";
 import fp from "fastify-plugin";
 import { hostname } from "os";
 

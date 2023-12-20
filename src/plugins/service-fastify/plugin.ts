@@ -26,7 +26,7 @@ import {
 import { IDictionary } from "@bettercorp/tools/lib/Interfaces";
 import { readFileSync } from "fs";
 import { hostname } from "os";
-import { Tools } from "@bettercorp/tools";
+import { Tools } from "@bettercorp/tools/lib/Tools";
 
 export interface ServiceTypes extends BSBServiceTypes {
   onEvents: ServiceEventsBase;

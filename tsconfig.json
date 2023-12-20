@@ -10,7 +10,7 @@
     "preserveConstEnums": true,
     "noImplicitReturns": true,
     "noUnusedLocals": true,
-    "sourceMap": false,
+    "sourceMap": true,
     "outDir": "lib",
     "rootDir": "src",
     "strict": true,
@@ -25,10 +25,14 @@
     "moduleResolution": "node"
   },
   "linterOptions": {
-    "exclude": ["src/plugins/-*/**/*.*"]
+    "exclude": [
+      "src/plugins/-*/**/*.*"
+    ]
   },
   "compileOnSave": true,
-  "include": ["src"],
+  "include": [
+    "src"
+  ],
   "exclude": [
     "node_modules/**",
     "src/plugins/*-test*/**/*.*",
