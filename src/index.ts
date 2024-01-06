@@ -1,1 +1,1 @@
-export { Fastify } from "./clients/service-fastify/plugin";
+export { Fastify } from "./plugins/service-fastify/client";

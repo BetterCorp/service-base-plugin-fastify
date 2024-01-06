@@ -1,109 +1,85 @@
-import { IPluginLogger } from "@bettercorp/service-base";
+import { DEBUG_MODE, IPluginLogger } from "@bettercorp/service-base";
 import { CleanStringStrength, Tools } from "@bettercorp/tools/lib/Tools";
-import { FastifyInstance, FastifyRequestContext } from "fastify";
+import { FastifyInstance } from "fastify";
 import fp from "fastify-plugin";
 import { hostname } from "os";
 
-interface LoggerFastifyRequestContext extends FastifyRequestContext {
-  startTime: [number, number];
-}
-
 function plugin(
   fastify: FastifyInstance,
-  log: IPluginLogger,
+  opts: {
+    server: "HTTP" | "HTTPS";
+    log: IPluginLogger;
+    mode: DEBUG_MODE;
+  },
   donePlugin: Function
 ) {
+  const thisHostname = hostname();
   fastify.addHook("onRequest", (request, reply, done) => {
-    log.reportStat(
-      `FASTIFY_REQUEST_${request.method}_${Tools.cleanString(
-        request.hostname,
-        255,
-        CleanStringStrength.hard
-      )}_${request.routeOptions.config.url}`,
-      1
+    const contentLength =
+      Tools.isStringNumber(request.headers["content-length"]).value ?? -1;
+    opts.log.reportStat(
+      `Request on ${thisHostname} [${request.method}] ${request.hostname} ${request.url} (${request.ip})`,
+      contentLength
     );
-    log.reportStat(
-      `FASTIFY_REQUEST_${hostname()}_${request.method}_${Tools.cleanString(
-        request.hostname,
-        255,
-        CleanStringStrength.hard
-      )}_${request.routeOptions.config.url}`,
-      1
+    opts.log.reportStat(
+      `Request [${request.method}] ${request.hostname} ${request.url}`,
+      contentLength
     );
-    log.reportTextStat(
-      `Fastify Request [{method}] {oshostname} {hostname} {url} ({ip})`,
-      {
-        oshostname: hostname(),
-        hostname: Tools.cleanString(
-          request.hostname,
-          255,
-          CleanStringStrength.hard
-        ),
-        ip: request.ip,
-        method: request.method,
-        url: request.routeOptions.url,
-      }
-    );
-    (request.context as LoggerFastifyRequestContext).startTime =
-      process.hrtime();
+    if (opts.mode !== "production") {
+      opts.log.debug(
+        `Request [{method}] {hostname} {url} ({ip}) headers [{headers}]`,
+        {
+          hostname: Tools.cleanString(
+            request.hostname,
+            255,
+            CleanStringStrength.soft
+          ),
+          ip: request.ip,
+          method: request.method,
+          url: Tools.cleanString(request.url, 255, CleanStringStrength.soft),
+          headers: Object.keys(request.headers)
+            .map((x) => `${x}=${request.headers[x]}`)
+            .join(", "),
+        }
+      );
+    }
     done();
   });
 
   // Add a hook for onResponse
   fastify.addHook("onResponse", (request, reply, done) => {
-    const responseTime = process.hrtime(
-      (request.context as LoggerFastifyRequestContext).startTime
-    );
-    const responseTimeInMs = responseTime[0] * 1e3 + responseTime[1] * 1e-6;
-    log.reportStat(
-      `FASTIFY_RESPONSE_${request.method}_${Tools.cleanString(
-        request.hostname,
-        255,
-        CleanStringStrength.hard
-      )}_${request.routeOptions.config.url}`,
-      responseTimeInMs
-    );
-    log.reportStat(
-      `FASTIFY_RESPONSE_${request.method}_${Tools.cleanString(
-        request.hostname,
-        255,
-        CleanStringStrength.hard
-      )}_${request.routeOptions.config.url}_STATUS`,
-
+    opts.log.reportStat(
+      `Response on ${thisHostname} [${request.method}] ${request.hostname} ${request.url} (${request.ip})`,
       reply.statusCode
     );
-    log.reportStat(
-      `FASTIFY_RESPONSE_${hostname()}_${request.method}_${Tools.cleanString(
-        request.hostname,
-        255,
-        CleanStringStrength.hard
-      )}_${request.routeOptions.config.url}`,
-      responseTimeInMs
-    );
-    log.reportStat(
-      `FASTIFY_RESPONSE_${hostname()}_${request.method}_${Tools.cleanString(
-        request.hostname,
-        255,
-        CleanStringStrength.hard
-      )}_${request.routeOptions.config.url}_STATUS`,
+    opts.log.reportStat(
+      `Response [${request.method}] ${request.hostname} ${request.url}`,
       reply.statusCode
     );
-    log.reportTextStat(
-      `Fastify Response [{method}] {oshostname} {hostname} {url} ({ip}) Took {responseTimeInMs}ms and code {statusCode}`,
-      {
-        oshostname: hostname(),
-        hostname: Tools.cleanString(
-          request.hostname,
-          255,
-          CleanStringStrength.hard
-        ),
-        ip: request.ip,
-        method: request.method,
-        url: request.routeOptions.url,
-        responseTimeInMs,
-        statusCode: reply.statusCode,
-      }
+    opts.log.reportStat(
+      `Response time on ${thisHostname} [${request.method}] ${request.hostname} ${request.url} (${request.ip})`,
+      reply.getResponseTime()
     );
+    opts.log.reportStat(
+      `Response time [${request.method}] ${request.hostname} ${request.url}`,
+      reply.getResponseTime()
+    );
+    if (opts.mode !== "production") {
+      opts.log.debug(
+        `Response [{method}] {hostname} {url} ({ip}) code {statusCode}`,
+        {
+          hostname: Tools.cleanString(
+            request.hostname,
+            255,
+            CleanStringStrength.soft
+          ),
+          ip: request.ip,
+          method: request.method,
+          url: Tools.cleanString(request.url, 255, CleanStringStrength.soft),
+          statusCode: reply.statusCode,
+        }
+      );
+    }
     done();
   });
 

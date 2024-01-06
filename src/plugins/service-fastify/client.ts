@@ -15,11 +15,11 @@ import {
   FastifyNoBodyRequestHandler,
   FastifyRequestHandler,
 } from "../../plugins/service-fastify/lib";
-import { ServiceTypes } from "../../plugins/service-fastify/plugin";
+import { Plugin } from "./plugin";
 import { Server as HServer } from "http";
 import { Server as HSServer } from "https";
 
-export class Fastify extends BSBServiceClient<ServiceTypes> {
+export class Fastify extends BSBServiceClient<Plugin> {
   public readonly pluginName = "service-fastify";
   public readonly initBeforePlugins?: string[] | undefined;
   public readonly initAfterPlugins: string[] = ["service-fastify"];

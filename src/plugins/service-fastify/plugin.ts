@@ -1,7 +1,8 @@
 import {
+  BSBPluginConfig,
+  BSBPluginEvents,
   BSBService,
   BSBServiceConstructor,
-  BSBServiceTypes,
   ServiceEventsBase,
 } from "@bettercorp/service-base";
 import fastify, {
@@ -15,7 +16,7 @@ import fastify, {
   FastifyReply,
 } from "fastify";
 import fastifyBsbLogger from "./logger";
-import { Config, WebServerType } from "./sec-config";
+import { WebServerType, secSchema } from "./sec-config";
 import { Server as HServer } from "http";
 import { Server as HSServer } from "https";
 import {
@@ -28,75 +29,23 @@ import { readFileSync } from "fs";
 import { hostname } from "os";
 import { Tools } from "@bettercorp/tools/lib/Tools";
 
-export interface ServiceTypes extends BSBServiceTypes {
+export class Config extends BSBPluginConfig<typeof secSchema> {
+  migrate(toVersion: string, fromVersion: string | null, fromConfig: any) {
+    return fromConfig;
+  }
+  validationSchema = secSchema;
+}
+
+export interface Events extends BSBPluginEvents {
   onEvents: ServiceEventsBase;
   emitEvents: ServiceEventsBase;
   onReturnableEvents: ServiceEventsBase;
   emitReturnableEvents: ServiceEventsBase;
   onBroadcast: ServiceEventsBase;
   emitBroadcast: ServiceEventsBase;
-  methods: {
-    getServerInstance(): Promise<FastifyInstance<HServer | HSServer>>;
-    addHealthCheck(
-      pluginName: string,
-      checkName: string,
-      handler: { (): Promise<boolean> }
-    ): Promise<void>;
-    register(
-      plugin:
-        | FastifyPluginCallback<FastifyPluginOptions>
-        | FastifyPluginAsync<FastifyPluginOptions>
-        | Promise<{ default: FastifyPluginCallback<FastifyPluginOptions> }>
-        | Promise<{ default: FastifyPluginAsync<FastifyPluginOptions> }>,
-      opts?: FastifyRegisterOptions<FastifyPluginOptions>
-    ): Promise<void>;
-    head<Path extends string>(
-      path: Path,
-      handler: FastifyNoBodyRequestHandler<Path>
-    ): Promise<void>;
-    get<Path extends string>(
-      path: Path,
-      handler: FastifyNoBodyRequestHandler<Path>
-    ): Promise<void>;
-    getCustom<
-      Path extends string,
-      Opts extends RouteShorthandOptions = any,
-      Handler extends Function = {
-        (request: FastifyRequest, reply: FastifyReply): Promise<void>;
-      }
-    >(
-      path: Path,
-      opts: Opts,
-      handler: Handler
-    ): Promise<void>;
-    post<Path extends string>(
-      path: Path,
-      handler: FastifyRequestHandler<Path>
-    ): Promise<void>;
-    put<Path extends string>(
-      path: Path,
-      handler: FastifyRequestHandler<Path>
-    ): Promise<void>;
-    delete<Path extends string>(
-      path: Path,
-      handler: FastifyRequestHandler<Path>
-    ): Promise<void>;
-    patch<Path extends string>(
-      path: Path,
-      handler: FastifyRequestHandler<Path>
-    ): Promise<void>;
-    options<Path extends string>(
-      path: Path,
-      handler: FastifyNoBodyRequestHandler<Path>
-    ): Promise<void>;
-    all<Path extends string>(
-      path: Path,
-      handler: FastifyRequestHandler<Path>
-    ): Promise<void>;
-  };
 }
 
-export class Plugin extends BSBService<Config, ServiceTypes> {
+export class Plugin extends BSBService<Config, Events> {
   private HTTPFastify!: FastifyInstance<HServer>;
   private HTTPSFastify!: FastifyInstance<HSServer>;
   private HealthChecks: IDictionary<{
@@ -398,8 +347,12 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
   constructor(config: BSBServiceConstructor) {
     super(config);
     if (this.config.type === WebServerType.http) {
-      this.HTTPFastify = fastify({});
-      this.HTTPFastify.register(fastifyBsbLogger, this.log);
+      this.HTTPFastify = fastify({ logger: false }); // we do not want the default fastify logger since we have our own.
+      this.HTTPFastify.register(fastifyBsbLogger, {
+        server: "HTTP",
+        log: this.log,
+        mode: this.mode,
+      });
       this.log.info(`[HTTP] Server ready: {host}:{httpPort}`, {
         host: this.config.host,
         httpPort: this.config.httpPort,
@@ -419,7 +372,11 @@ export class Plugin extends BSBService<Config, ServiceTypes> {
           key: readFileSync(this.config.httpsKey!),
         },
       });
-      this.HTTPSFastify.register(fastifyBsbLogger, this.log);
+      this.HTTPSFastify.register(fastifyBsbLogger, {
+        server: "HTTPS",
+        log: this.log,
+        mode: this.mode,
+      });
       this.log.info(`[HTTPS] Server ready: {host}:{httpsPort}`, {
         host: this.config.host,
         httpsPort: this.config.httpsPort,

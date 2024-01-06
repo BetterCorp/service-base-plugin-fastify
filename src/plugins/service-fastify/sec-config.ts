@@ -1,4 +1,3 @@
-import { BSBServiceConfig } from "@bettercorp/service-base";
 import { z } from "zod";
 
 export const WebServerType = {
@@ -132,15 +131,3 @@ export const secSchema = z
     }
   )*/
   .default({});
-
-export class Config extends BSBServiceConfig<typeof secSchema> {
-  validationSchema = secSchema;
-
-  migrate(
-    toVersion: string,
-    fromVersion: string | null,
-    fromConfig: any | null
-  ) {
-    return fromConfig;
-  }
-}
