@@ -297,7 +297,9 @@ export class Plugin extends BSBService<Config, Events> {
         },
         async (err, address) =>
           err
-            ? this.log.error("[HTTP] Error listening error: {err}", { err })
+            ? this.log.error("[HTTP] Error listening error: {err}", err, {
+                err,
+              })
             : this.log.info(`[HTTP] Listening {address} for WW!`, {
                 address,
               })
@@ -318,7 +320,9 @@ export class Plugin extends BSBService<Config, Events> {
         },
         async (err, address) =>
           err
-            ? this.log.error("[HTTPS] Error listening error: {err}", { err })
+            ? this.log.error("[HTTPS] Error listening error: {err}", err, {
+                err,
+              })
             : this.log.info(`[HTTPS] Listening {address}!`, {
                 address,
               })
@@ -358,7 +362,7 @@ export class Plugin extends BSBService<Config, Events> {
         httpPort: this.config.httpPort,
       });
       this.HTTPFastify.setErrorHandler(async (error, request, reply) => {
-        this.log.error("[HTTP] Error handled [{statusCode}] {message}", {
+        this.log.error("[HTTP] Error handled [{statusCode}] {message}", error, {
           statusCode: error.statusCode ?? "-",
           message: error.message,
         });
@@ -382,10 +386,14 @@ export class Plugin extends BSBService<Config, Events> {
         httpsPort: this.config.httpsPort,
       });
       this.HTTPSFastify.setErrorHandler(async (error, request, reply) => {
-        this.log.error("[HTTPS] Error handled [{statusCode}] {message}", {
-          statusCode: error.statusCode ?? "-",
-          message: error.message,
-        });
+        this.log.error(
+          "[HTTPS] Error handled [{statusCode}] {message}",
+          error,
+          {
+            statusCode: error.statusCode ?? "-",
+            message: error.message,
+          }
+        );
         reply.status(500).send("SERVER ERROR");
       });
     }
