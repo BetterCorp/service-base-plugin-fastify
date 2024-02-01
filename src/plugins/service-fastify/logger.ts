@@ -58,11 +58,11 @@ function plugin(
     );
     opts.log.reportStat(
       `Response time on ${thisHostname} [${request.method}] ${request.hostname} ${request.url} (${request.ip})`,
-      reply.getResponseTime()
+      reply.elapsedTime
     );
     opts.log.reportStat(
       `Response time [${request.method}] ${request.hostname} ${request.url}`,
-      reply.getResponseTime()
+      reply.elapsedTime
     );
     if (opts.mode !== "production") {
       opts.log.debug(
