@@ -29,6 +29,16 @@ import { readFileSync } from "fs";
 import { hostname } from "os";
 import { Tools } from "@bettercorp/tools/lib/Tools";
 
+const pluginMetaSymbol = Symbol.for("plugin-meta");
+interface FastifyMetadataPluginMetadata {
+  fastify: string;
+  name: string;
+}
+interface FastifyMetadataPlugin {
+  [key: string]: any; // Other properties can be typed as needed.
+  [pluginMetaSymbol]: FastifyMetadataPluginMetadata;
+}
+
 export class Config extends BSBPluginConfig<typeof secSchema> {
   migrate(toVersion: string, fromVersion: string | null, fromConfig: any) {
     return fromConfig;
@@ -51,6 +61,7 @@ export class Plugin extends BSBService<Config, Events> {
   private HealthChecks: IDictionary<{
     (): Promise<boolean>;
   }> = {};
+  private RegisteredPlugins: Array<string> = [];
 
   initBeforePlugins?: string[] | undefined;
   initAfterPlugins?: string[] | undefined;
@@ -103,10 +114,27 @@ export class Plugin extends BSBService<Config, Events> {
       opts?: FastifyRegisterOptions<FastifyPluginOptions>
     ): Promise<void> => {
       const server = await this.getServerToListenTo();
-      this.log.debug(`[{type}] initForPlugins [USE]`, { type: server.type });
-      server.server.register(plugin, opts);
-      this.log.debug(`[{type}] initForPlugins [USE] OKAY`, {
+      const pluginMeta =
+        (plugin as unknown as FastifyMetadataPlugin)[pluginMetaSymbol] ?? {};
+      const pluginName = pluginMeta.name ?? "unknown/internal/custom";
+      this.log.debug(`[{type}] initForPlugins [REGISTER] {pluginName}`, {
         type: server.type,
+        pluginName,
+      });
+      if (this.RegisteredPlugins.includes(pluginName)) {
+        this.log.warn(
+          `[{type}] initForPlugins [REGISTER] {pluginName} ALREADY REGISTERED`,
+          { type: server.type, pluginName }
+        );
+        return;
+      }
+      if (pluginMeta.name !== undefined && pluginMeta.name !== null)
+        this.RegisteredPlugins.push(pluginName);
+
+      server.server.register(plugin, opts);
+      this.log.debug(`[{type}] initForPlugins [REGISTER] {pluginName} OKAY`, {
+        type: server.type,
+        pluginName,
       });
     },
     head: async <Path extends string>(
