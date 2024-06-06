@@ -28,7 +28,7 @@ export class Fastify extends BSBServiceClient<Plugin> {
   dispose?(): void;
   init?(): Promise<void>;
   run?(): Promise<void>;
-  public constructor(context: BSBService<any, any>) {
+  public constructor(context: BSBService) {
     super(context);
   }
 
