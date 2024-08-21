@@ -15,7 +15,7 @@ import {
   FastifyNoBodyRequestHandler,
   FastifyRequestHandler,
 } from "../../plugins/service-fastify/lib";
-import { Plugin } from "./plugin";
+import { Plugin } from "./index";
 import { Server as HServer } from "http";
 import { Server as HSServer } from "https";
 

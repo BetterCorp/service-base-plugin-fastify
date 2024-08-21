@@ -22,27 +22,27 @@
     "LICENSE"
   ],
   "main": "lib/index.js",
-  "version": "2.0.0",
+  "version": "2.2.0",
   "bsb_project": true,
   "devDependencies": {
     "@types/assert": "^1.5.10",
     "@types/chai": "^4.3.14",
     "@types/mocha": "^10.0.6",
-    "@types/node": "^20.12.7",
-    "@types/yargs": "^17.0.32",
+    "@types/node": "^22.4.1",
+    "@types/yargs": "^17.0.33",
     "@typescript-eslint/eslint-plugin": "^7.6.0",
     "@typescript-eslint/parser": "^7.6.0",
     "chai": "^5.1.0",
     "eslint": "^8.57.0",
-    "mocha": "^10.4.0",
-    "nyc": "^15.1.0",
+    "mocha": "^10.7.3",
+    "nyc": "^17.0.0",
     "ts-node": "^10.9.2",
-    "typescript": "^5.4.5"
+    "typescript": "^5.5.4"
   },
   "dependencies": {
-    "@bettercorp/service-base": "^8.5.54",
+    "@bettercorp/service-base": "^8.5.72",
     "@bettercorp/tools": "^3.7.0",
-    "fastify": "^4.26.2",
+    "fastify": "^4.28.1",
     "fastify-plugin": "^4.5.1"
   }
 }
